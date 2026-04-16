@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ONPE · Resumen</title>
+    <style>
+      :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+      body { margin: 0; padding: 2rem; max-width: 900px; margin-inline: auto; }
+      h1 { font-size: 1.3rem; }
+      .card { border: 1px solid #8884; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+      .row { display: flex; justify-content: space-between; gap: 1rem; }
+      .k { opacity: 0.7; }
+      button { padding: 0.5rem 1rem; cursor: pointer; }
+      pre { background: #8881; padding: 1rem; border-radius: 8px; overflow: auto; max-height: 400px; }
+      .err { color: #c33; }
+      table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+      th, td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #8883; }
+      th { text-align: left; font-size: 0.85rem; opacity: 0.7; }
+      h2 { font-size: 1.05rem; margin-top: 2rem; }
+      .chart-box { position: relative; height: 280px; margin-top: .5rem; }
+      .chart-box.sm { height: 200px; }
+    </style>
+  </head>
+  <body>
+    <h1>ONPE · Resultado Electoral — Resumen</h1>
+    <button id="reload">Recargar</button>
+    <span id="status"></span>
+    <h2>Resumen general</h2>
+    <div id="summary"></div>
+    <h2>Votación por organización política</h2>
+    <div id="parties"></div>
+    <h2>Evolución (top 5 candidatos)</h2>
+    <p class="k" style="font-size:.85rem">Necesita el grabador corriendo: <code>npm run record</code></p>
+    <div class="chart-box"><canvas id="chart"></canvas></div>
+    <h2>Lucha por el 2° y 3° lugar (zoom)</h2>
+    <div class="chart-box"><canvas id="chart-battle"></canvas></div>
+    <h2>Brecha 2° − 3° (en puntos %)</h2>
+    <p class="k" style="font-size:.85rem">Cerca de 0 = empate técnico. Cruza el 0 = cambio de posición.</p>
+    <div class="chart-box sm"><canvas id="chart-gap"></canvas></div>
+    <details><summary>JSON crudo</summary><pre id="raw"></pre></details>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

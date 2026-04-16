@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Datos capturados por el grabador (grandes y mutables)
+public/history.jsonl
+
+# Capturas ad-hoc
+image.png
+*.screenshot.png
+
+# IDE / editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Caches
+.cache/
+.vite/
+.parcel-cache/

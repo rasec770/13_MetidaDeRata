@@ -1,0 +1,59 @@
+import { appendFile, mkdir } from "node:fs/promises";
+import { join } from "node:path";
+
+const BASE = "https://resultadoelectoral.onpe.gob.pe/presentacion-backend";
+const PARAMS = "idEleccion=10&tipoFiltro=eleccion";
+const OUT_DIR = "public";
+const OUT_FILE = join(OUT_DIR, "history.jsonl");
+const INTERVAL_MS = Number(process.env.INTERVAL_MS ?? 60_000);
+
+const HEADERS = {
+  accept: "*/*",
+  "accept-language": "es-419,es;q=0.9",
+  "content-type": "application/json",
+  referer: "https://resultadoelectoral.onpe.gob.pe/main/resumen",
+  "sec-ch-ua": '"Chromium";v="147", "Not.A/Brand";v="8"',
+  "sec-ch-ua-mobile": "?0",
+  "sec-ch-ua-platform": '"Windows"',
+  "sec-fetch-dest": "empty",
+  "sec-fetch-mode": "cors",
+  "sec-fetch-site": "same-origin",
+  "user-agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+};
+
+async function get(path: string) {
+  const res = await fetch(`${BASE}/${path}?${PARAMS}`, { headers: HEADERS });
+  if (!res.ok) throw new Error(`HTTP ${res.status} on ${path}`);
+  return res.json() as Promise<{ success: boolean; data: unknown }>;
+}
+
+async function snapshot() {
+  const ts = new Date().toISOString();
+  try {
+    const [totales, participantes] = await Promise.all([
+      get("resumen-general/totales"),
+      get("resumen-general/participantes"),
+    ]);
+    const line = JSON.stringify({
+      ts,
+      totales: totales.data,
+      participantes: participantes.data,
+    });
+    await appendFile(OUT_FILE, line + "\n", "utf8");
+
+    const t = totales.data as { actasContabilizadas?: number };
+    console.log(`[${ts}] ✓ snapshot guardado · actas ${t.actasContabilizadas ?? "?"}%`);
+  } catch (e) {
+    console.error(`[${ts}] ✗ ${(e as Error).message}`);
+  }
+}
+
+async function main() {
+  await mkdir(OUT_DIR, { recursive: true });
+  console.log(`Grabando cada ${INTERVAL_MS / 1000}s en ${OUT_FILE}. Ctrl+C para detener.`);
+  await snapshot();
+  setInterval(snapshot, INTERVAL_MS);
+}
+
+main();

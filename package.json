@@ -1,0 +1,22 @@
+{
+  "name": "onpe-scraper",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "samples": "tsx scripts/fetch-samples.ts",
+    "record": "tsx scripts/record.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.4"
+  }
+}

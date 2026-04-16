@@ -1,0 +1,24 @@
+{
+  "success": true,
+  "message": "Se ejecutó correctamente la operación",
+  "data": [
+    {
+      "ambitoGeografico": 1,
+      "ubigeoNivel01": null,
+      "ubigeoNivel02": null,
+      "ubigeoNivel03": null,
+      "distritoElectoral": null,
+      "porcentajeActasContabilizadas": 93.02,
+      "actasContabilizadas": 83925
+    },
+    {
+      "ambitoGeografico": 2,
+      "ubigeoNivel01": null,
+      "ubigeoNivel02": null,
+      "ubigeoNivel03": null,
+      "distritoElectoral": null,
+      "porcentajeActasContabilizadas": 45.301,
+      "actasContabilizadas": 1152
+    }
+  ]
+}
