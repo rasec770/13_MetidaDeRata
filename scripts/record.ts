@@ -1,5 +1,6 @@
 import { appendFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const BASE = "https://resultadoelectoral.onpe.gob.pe/presentacion-backend";
 const PARAMS = "idEleccion=10&tipoFiltro=eleccion";
@@ -49,11 +50,13 @@ async function snapshot() {
   }
 }
 
-async function main() {
+export async function startRecorder(intervalMs = INTERVAL_MS) {
   await mkdir(OUT_DIR, { recursive: true });
-  console.log(`Grabando cada ${INTERVAL_MS / 1000}s en ${OUT_FILE}. Ctrl+C para detener.`);
+  console.log(`[record] grabando cada ${intervalMs / 1000}s en ${OUT_FILE}`);
   await snapshot();
-  setInterval(snapshot, INTERVAL_MS);
+  return setInterval(snapshot, intervalMs);
 }
 
-main();
+const isCli =
+  process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isCli) startRecorder();

@@ -1,8 +1,26 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
+import { startRecorder } from "./scripts/record";
 
 const ONPE = "https://resultadoelectoral.onpe.gob.pe";
 
+const recorderPlugin = (): Plugin => {
+  let timer: NodeJS.Timeout | undefined;
+  return {
+    name: "onpe-recorder",
+    apply: "serve",
+    async configureServer() {
+      if (timer) return;
+      timer = await startRecorder();
+    },
+    closeBundle() {
+      if (timer) clearInterval(timer);
+      timer = undefined;
+    },
+  };
+};
+
 export default defineConfig({
+  plugins: [recorderPlugin()],
   server: {
     proxy: {
       "/api": {

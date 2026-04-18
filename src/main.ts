@@ -33,6 +33,10 @@ type Totales = {
   actasContabilizadas: number;
   contabilizadas: number;
   totalActas: number;
+  actasEnviadasJee: number;
+  enviadasJee: number;
+  actasPendientesJee: number;
+  pendientesJee: number;
   participacionCiudadana: number;
   totalVotosEmitidos: number;
   totalVotosValidos: number;
@@ -83,6 +87,8 @@ function fmtPct(n: number | undefined) {
 function renderSummary(t: Totales) {
   const rows: [string, string][] = [
     ["Actas contabilizadas", `${fmtPct(t.actasContabilizadas)} (${fmtInt(t.contabilizadas)} / ${fmtInt(t.totalActas)})`],
+    ["Para envío al JEE", `${fmtPct(t.actasEnviadasJee)} (${fmtInt(t.enviadasJee)})`],
+    ["Pendientes", `${fmtPct(t.actasPendientesJee)} (${fmtInt(t.pendientesJee)})`],
     ["Participación ciudadana", fmtPct(t.participacionCiudadana)],
     ["Votos emitidos", fmtInt(t.totalVotosEmitidos)],
     ["Votos válidos", fmtInt(t.totalVotosValidos)],
@@ -299,6 +305,32 @@ function renderHistory() {
     "votos válidos",
     "int"
   );
+
+  // Charts de actas (cada uno con su propio zoom)
+  const actasCharts: [string, string, keyof Totales, string][] = [
+    ["chart-actas-cont", "Contabilizadas", "contabilizadas", COLORS[1]],
+    ["chart-actas-jee", "Para envío al JEE", "enviadasJee", COLORS[2]],
+    ["chart-actas-pend", "Pendientes", "pendientesJee", COLORS[0]],
+  ];
+  for (const [id, label, field, color] of actasCharts) {
+    drawChart(
+      id,
+      labels,
+      [
+        {
+          label,
+          data: snapshots.map((s) => (s.totales[field] as number | undefined) ?? null),
+          borderColor: color,
+          backgroundColor: color + "22",
+          fill: true,
+          tension: 0.2,
+          spanGaps: true,
+        },
+      ],
+      "actas",
+      "int"
+    );
+  }
 
   // Chart 3: brecha 2° − 3°
   const s2 = seriesFor(snapshots, n2);
