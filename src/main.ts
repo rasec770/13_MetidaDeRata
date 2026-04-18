@@ -194,6 +194,12 @@ function drawChart(
         tooltip: {
           callbacks: {
             label: (ctx) => `${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`,
+            footer: (items) => {
+              if (items.length !== 2) return "";
+              const [a, b] = items.map((i) => i.parsed.y);
+              if (a == null || b == null) return "";
+              return `Δ ${fmt(Math.abs(a - b))}`;
+            },
           },
         },
       },
@@ -213,14 +219,32 @@ function drawChart(
   });
 }
 
+let allSnapshots: Snapshot[] = [];
+
+const rangeSel = $<HTMLSelectElement>("range");
+const rangeInfo = $("range-info");
+
+function filteredSnapshots(): Snapshot[] {
+  const minutes = Number(rangeSel.value) || 0;
+  if (!minutes) return allSnapshots;
+  const cutoff = Date.now() - minutes * 60_000;
+  return allSnapshots.filter((s) => new Date(s.ts).getTime() >= cutoff);
+}
+
 async function loadHistory() {
   const res = await fetch(`/history.jsonl?t=${Date.now()}`, { cache: "no-store" });
   if (!res.ok) return;
   const text = await res.text();
-  const snapshots: Snapshot[] = text
+  allSnapshots = text
     .split("\n")
     .filter(Boolean)
     .map((l) => JSON.parse(l));
+  renderHistory();
+}
+
+function renderHistory() {
+  const snapshots = filteredSnapshots();
+  rangeInfo.textContent = `${snapshots.length} de ${allSnapshots.length} snapshots`;
   if (snapshots.length === 0) return;
 
   const last = snapshots.at(-1)!;
@@ -254,8 +278,23 @@ async function loadHistory() {
     "chart-battle",
     labels,
     [
-      { label: `2° ${n2}`, data: seriesFor(snapshots, n2, "totalVotosValidos"), borderColor: COLORS[1], backgroundColor: COLORS[1], tension: 0.2, spanGaps: true },
-      { label: `3° ${n3}`, data: seriesFor(snapshots, n3, "totalVotosValidos"), borderColor: COLORS[2], backgroundColor: COLORS[2], tension: 0.2, spanGaps: true },
+      {
+        label: `2° ${n2}`,
+        data: seriesFor(snapshots, n2, "totalVotosValidos"),
+        borderColor: COLORS[1],
+        backgroundColor: COLORS[1] + "22",
+        fill: "+1",
+        tension: 0.2,
+        spanGaps: true,
+      },
+      {
+        label: `3° ${n3}`,
+        data: seriesFor(snapshots, n3, "totalVotosValidos"),
+        borderColor: COLORS[2],
+        backgroundColor: COLORS[2],
+        tension: 0.2,
+        spanGaps: true,
+      },
     ],
     "votos válidos",
     "int"
@@ -289,5 +328,6 @@ async function loadAll() {
 }
 
 $<HTMLButtonElement>("reload").addEventListener("click", loadAll);
+rangeSel.addEventListener("change", renderHistory);
 loadAll();
 setInterval(loadAll, 60_000);

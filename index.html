@@ -20,6 +20,8 @@
       h2 { font-size: 1.05rem; margin-top: 2rem; }
       .chart-box { position: relative; height: 280px; margin-top: .5rem; }
       .chart-box.sm { height: 200px; }
+      .range-bar { display: flex; align-items: center; gap: .5rem; margin: .5rem 0; }
+      .range-bar select { padding: .25rem .5rem; }
     </style>
   </head>
   <body>
@@ -32,6 +34,17 @@
     <div id="parties"></div>
     <h2>Evolución (top 5 candidatos)</h2>
     <p class="k" style="font-size:.85rem">Necesita el grabador corriendo: <code>npm run record</code></p>
+    <div class="range-bar">
+      <span class="k">Rango:</span>
+      <select id="range">
+        <option value="0">Todo</option>
+        <option value="15">15 min</option>
+        <option value="60">1 h</option>
+        <option value="360">6 h</option>
+        <option value="1440">24 h</option>
+      </select>
+      <span id="range-info" class="k" style="font-size:.85rem"></span>
+    </div>
     <div class="chart-box"><canvas id="chart"></canvas></div>
     <h2>Lucha por el 2° y 3° lugar (zoom)</h2>
     <div class="chart-box"><canvas id="chart-battle"></canvas></div>
