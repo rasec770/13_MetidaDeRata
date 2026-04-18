@@ -169,12 +169,44 @@ function seriesFor(
 }
 
 type YFormat = "percent" | "int";
+
+const arrowsPlugin = {
+  id: "arrows",
+  afterDatasetsDraw(chart: Chart) {
+    const ctx = chart.ctx;
+    const ds = chart.data.datasets[0];
+    const meta = chart.getDatasetMeta(0);
+    const data = ds.data as (number | null)[];
+    ctx.save();
+    ctx.font = "10px system-ui";
+    ctx.textAlign = "center";
+    for (let i = 1; i < data.length; i++) {
+      const cur = data[i];
+      const prev = data[i - 1];
+      if (cur == null || prev == null || cur === prev) continue;
+      const point = meta.data[i];
+      if (!point) continue;
+      if (cur > prev) {
+        ctx.fillStyle = "#3cb44b";
+        ctx.textBaseline = "bottom";
+        ctx.fillText("▲", point.x, point.y - 4);
+      } else {
+        ctx.fillStyle = "#e6194b";
+        ctx.textBaseline = "top";
+        ctx.fillText("▼", point.x, point.y + 4);
+      }
+    }
+    ctx.restore();
+  },
+};
+
 function drawChart(
   id: string,
   labels: string[],
   datasets: any[],
   yTitle: string,
-  yFormat: YFormat = "percent"
+  yFormat: YFormat = "percent",
+  withArrows = false
 ) {
   const canvas = $<HTMLCanvasElement>(id);
   charts[id]?.destroy();
@@ -190,6 +222,7 @@ function drawChart(
   charts[id] = new Chart(canvas, {
     type: "line",
     data: { labels, datasets: styled },
+    plugins: withArrows ? [arrowsPlugin] : [],
     options: {
       responsive: true,
       maintainAspectRatio: false,
@@ -307,12 +340,12 @@ function renderHistory() {
   );
 
   // Charts de actas (cada uno con su propio zoom)
-  const actasCharts: [string, string, keyof Totales, string][] = [
-    ["chart-actas-cont", "Contabilizadas", "contabilizadas", COLORS[1]],
-    ["chart-actas-jee", "Para envío al JEE", "enviadasJee", COLORS[2]],
-    ["chart-actas-pend", "Pendientes", "pendientesJee", COLORS[0]],
+  const actasCharts: [string, string, keyof Totales, string, boolean][] = [
+    ["chart-actas-cont", "Contabilizadas", "contabilizadas", COLORS[1], true],
+    ["chart-actas-jee", "Para envío al JEE", "enviadasJee", COLORS[2], false],
+    ["chart-actas-pend", "Pendientes", "pendientesJee", COLORS[0], false],
   ];
-  for (const [id, label, field, color] of actasCharts) {
+  for (const [id, label, field, color, arrows] of actasCharts) {
     drawChart(
       id,
       labels,
@@ -328,7 +361,8 @@ function renderHistory() {
         },
       ],
       "actas",
-      "int"
+      "int",
+      arrows
     );
   }
 
