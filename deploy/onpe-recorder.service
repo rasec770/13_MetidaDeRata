@@ -1,0 +1,29 @@
+[Unit]
+Description=ONPE Recorder (scraping cada INTERVAL_MS a history.jsonl)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=onpe
+Group=onpe
+WorkingDirectory=/var/www/onpe
+Environment=NODE_ENV=production
+Environment=OUT_FILE=/var/lib/onpe/history.jsonl
+Environment=INTERVAL_MS=60000
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/var/www/onpe/node_modules/.bin/tsx /var/www/onpe/scripts/record.ts
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/onpe
+
+[Install]
+WantedBy=multi-user.target

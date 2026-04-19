@@ -1,11 +1,10 @@
 import { appendFile, mkdir } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const BASE = "https://resultadoelectoral.onpe.gob.pe/presentacion-backend";
 const PARAMS = "idEleccion=10&tipoFiltro=eleccion";
-const OUT_DIR = "public";
-const OUT_FILE = join(OUT_DIR, "history.jsonl");
+const OUT_FILE = process.env.OUT_FILE ?? join("public", "history.jsonl");
 const INTERVAL_MS = Number(process.env.INTERVAL_MS ?? 60_000);
 
 const HEADERS = {
@@ -51,7 +50,7 @@ async function snapshot() {
 }
 
 export async function startRecorder(intervalMs = INTERVAL_MS) {
-  await mkdir(OUT_DIR, { recursive: true });
+  await mkdir(dirname(OUT_FILE), { recursive: true });
   console.log(`[record] grabando cada ${intervalMs / 1000}s en ${OUT_FILE}`);
   await snapshot();
   return setInterval(snapshot, intervalMs);

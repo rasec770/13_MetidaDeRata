@@ -1,0 +1,35 @@
+# ONPE · Caddy config
+#
+# Uso:
+#   1. Reemplaza `:80` por tu dominio (ej: `onpe.tudominio.com`) para HTTPS automático.
+#   2. Coloca en /etc/caddy/Caddyfile y recarga: `systemctl reload caddy`.
+
+:80 {
+	encode zstd gzip
+
+	# Datos en vivo del recorder (en disco persistente)
+	handle /history.jsonl {
+		root * /var/lib/onpe
+		header Cache-Control "no-store"
+		file_server
+	}
+
+	# Proxy a ONPE (reemplaza el proxy de vite.config.ts)
+	handle_path /api/* {
+		rewrite * /presentacion-backend{path}
+		reverse_proxy https://resultadoelectoral.onpe.gob.pe {
+			header_up Host resultadoelectoral.onpe.gob.pe
+			header_up Referer https://resultadoelectoral.onpe.gob.pe/main/resumen
+			header_up Origin https://resultadoelectoral.onpe.gob.pe
+			header_up User-Agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+			header_up Accept "application/json, text/plain, */*"
+		}
+	}
+
+	# Frontend estático (build de Vite)
+	handle {
+		root * /var/www/onpe/dist
+		try_files {path} /index.html
+		file_server
+	}
+}
